@@ -21,9 +21,9 @@ SOURCES += main.cpp \
     constants.cpp \
     proxyclient.cpp \
     workertask.cpp \
-    messagehandler.cpp \
-    packetid.cpp \
-    cryptography.cpp
+    packets/packetid.cpp \
+    packets/cryptography.cpp \
+    packets/packethandler.cpp
 
 HEADERS += \
     singleinstance.h \
@@ -31,7 +31,7 @@ HEADERS += \
     constants.h \
     proxyclient.h \
     workertask.h \
-    packets.h \
-    messagehandler.h \
-    packetid.h \
-    cryptography.h
+    packets/packetid.h \
+    packets/packettypes.h \
+    packets/cryptography.h \
+    packets/packethandler.h

@@ -10,6 +10,9 @@ class WorkerTask : public QObject, public QRunnable
 public:
     explicit WorkerTask(QByteArray data);
 
+    /**
+     * @brief Must be called when ignoring a packet
+     */
     void ignoreCurrent();
 
     inline int getWriterIndex() const { return writerIndex; }
@@ -25,10 +28,16 @@ protected:
     void run();
 
 private:
+    /**
+     * @brief Passes it to MessageHandler and writes it to the socket if not intercepted
+     * @param The packet to read
+     * @param The packet id
+     */
     void readMessage(const QByteArray &data, quint32 messagdId);
 
-    int writerIndex;
     QByteArray data;
+
+    int writerIndex;
 
 };
 

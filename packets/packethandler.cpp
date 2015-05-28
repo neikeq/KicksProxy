@@ -1,11 +1,11 @@
-#include "messagehandler.h"
+#include "packets/packethandler.h"
 
 #include <QDebug>
 
 #include "constants.h"
-#include "packetid.h"
+#include "packets/packetid.h"
 
-bool MessageHandler::handle(int messageId, const QByteArray &bytes, WorkerTask *workerTask)
+bool PacketHandler::handle(int messageId, const QByteArray &bytes, WorkerTask *workerTask)
 {
     auto func = events.value(messageId, NULL);
 
@@ -16,7 +16,7 @@ bool MessageHandler::handle(int messageId, const QByteArray &bytes, WorkerTask *
     return func != NULL;
 }
 
-MessageHandler::MessageHandler()
+PacketHandler::PacketHandler()
 {
     // Client Events
 
@@ -36,14 +36,14 @@ MessageHandler::MessageHandler()
     });
 }
 
-void MessageHandler::clientCertifyLogin(WorkerTask *workerTask, const QByteArray &bytes)
+void PacketHandler::clientCertifyLogin(WorkerTask *workerTask, const QByteArray &bytes)
 {
     qDebug() << "Received client's CertifyLogin with size: " << bytes.size();
 
     emit workerTask->write(bytes, workerTask->getWriterIndex());
 }
 
-void MessageHandler::serverCertifyLogin(WorkerTask *workerTask, const QByteArray &bytes)
+void PacketHandler::serverCertifyLogin(WorkerTask *workerTask, const QByteArray &bytes)
 {
     qDebug() << "Received server's CertifyLogin with size: " << bytes.size();
 

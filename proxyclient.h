@@ -12,7 +12,11 @@ class ProxyClient : public QObject
 public:
     explicit ProxyClient(QObject *parent = 0);
 
-    void clientConnected(int descriptor);
+    /**
+     * @brief Initializes the proxy between client and server
+     * @param Socket descriptor for the client connection
+     */
+    void initializeProxy(int clientDescriptor);
 
 signals:
 
@@ -26,9 +30,19 @@ public slots:
     void serverReadyRead();
 
     // worker thread slots
+    /**
+     * @brief Called when the read was completed by the worker thread
+     * @param Current reader position in the data array
+     */
     void clientReadComplete(int readerIndex);
-    void clientWrite(const QByteArray &data, int writerIndex);
     void serverReadComplete(int readerIndex);
+
+    /**
+     * @brief Writes the specified byte array to the socket
+     * @param The byte array to write
+     * @param Current writer position in the data array
+     */
+    void clientWrite(const QByteArray &data, int writerIndex);
     void serverWrite(const QByteArray &data, int writerIndex);
 
     inline void updateClientWriterIndex(int writerIndex)
@@ -42,6 +56,9 @@ public slots:
     }
 
 private:
+    /**
+     * @brief Opens the connection with the server
+     */
     void connectToServer();
 
     QThreadPool *threadPool;

@@ -1,4 +1,4 @@
-#include "packetid.h"
+#include "packets/packetid.h"
 
 const quint32 PacketId::CERTIFY_LOGIN = 1001;
 const quint32 PacketId::INSTANT_LOGIN = 1002;

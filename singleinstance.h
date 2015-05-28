@@ -27,14 +27,7 @@ public:
 signals:
 
 public slots:
-    /**
-     * @brief Called when a new connection is opened
-     */
     void newConnection();
-
-    /**
-     * @brief Called when new data is available to read
-     */
     void readyRead();
 
 private:

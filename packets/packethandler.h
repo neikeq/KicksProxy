@@ -7,23 +7,30 @@
 
 #include "workertask.h"
 
-class MessageHandler
+class PacketHandler
 {
 public:
-    static MessageHandler& getInstance()
+    static PacketHandler& getInstance()
     {
-        static MessageHandler instance;
+        static PacketHandler instance;
         return instance;
     }
 
+    /**
+     * @brief Tries to call the method for this specific packet in events
+     * @param The packet id
+     * @param The packet to handle
+     * @param Pointer to the worker task instance
+     * @return True if the events contains this messageId
+     */
     bool handle(int messageId, const QByteArray &bytes, WorkerTask *workerTask);
 
 private:
-    MessageHandler();
+    PacketHandler();
 
     // To avoid getting copies of this singleton
-    MessageHandler(MessageHandler const&) = delete;
-    void operator=(MessageHandler const&) = delete;
+    PacketHandler(PacketHandler const&) = delete;
+    void operator=(PacketHandler const&) = delete;
 
     QMap<quint32, std::function<void(WorkerTask *workerTask, const QByteArray &bytes)>> events;
 

@@ -5,7 +5,7 @@
 #include <QIODevice>
 
 #include "constants.h"
-#include "messagehandler.h"
+#include "packets/packethandler.h"
 
 WorkerTask::WorkerTask(QByteArray data)
 {
@@ -67,7 +67,7 @@ void WorkerTask::readMessage(const QByteArray &data, quint32 messageId)
 {
     //const PHeader *header = reinterpret_cast<const PHeader*>(data.left(12).constData());
 
-    bool intercepted = MessageHandler::getInstance().handle(messageId, data, this);
+    bool intercepted = PacketHandler::getInstance().handle(messageId, data, this);
 
     if (!intercepted) {
         emit write(data, writerIndex);

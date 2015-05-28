@@ -10,6 +10,10 @@ class ProxyServer : public QTcpServer
     Q_OBJECT
 public:
     explicit ProxyServer(QObject *parent = 0);
+
+    /**
+     * @brief Starts listening for new connections
+     */
     void startServer();
 
 protected:

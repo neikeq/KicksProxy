@@ -13,7 +13,7 @@ ProxyClient::ProxyClient(QObject *parent) :
     serverData = new QByteArray();
 }
 
-void ProxyClient::clientConnected(int descriptor)
+void ProxyClient::initializeProxy(int clientDescriptor)
 {
     // Initialize client socket
     clientSocket = new QTcpSocket(this);
@@ -22,7 +22,7 @@ void ProxyClient::clientConnected(int descriptor)
     connect(clientSocket, SIGNAL(disconnected()), this, SLOT(clientDisconnected()));
     connect(clientSocket, SIGNAL(readyRead()), this, SLOT(clientReadyRead()));
 
-    clientSocket->setSocketDescriptor(descriptor);
+    clientSocket->setSocketDescriptor(clientDescriptor);
 
     // Open the connection with the server
     connectToServer();
@@ -136,7 +136,7 @@ void ProxyClient::serverReadyRead()
 
 void ProxyClient::clientReadComplete(int readerIndex)
 {
-    // Update the data to the bytes not readed
+    // Clear readed data
     clientData->remove(0, readerIndex);
 
     if (serverSocket != 0 && serverSocket->isOpen()) {
@@ -155,7 +155,7 @@ void ProxyClient::clientWrite(const QByteArray &data, int writerIndex)
 
 void ProxyClient::serverReadComplete(int readerIndex)
 {
-    // Update the data to the bytes not readed
+    // Clear readed data
     serverData->remove(0, readerIndex);
 
     if (clientSocket != 0 && clientSocket->isOpen()) {
