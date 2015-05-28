@@ -5,7 +5,7 @@
 #include <QMap>
 #include <QObject>
 
-#include "workertask.h"
+#include "network/workertask.h"
 
 class PacketHandler
 {

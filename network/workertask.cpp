@@ -1,4 +1,4 @@
-#include "workertask.h"
+#include "network/workertask.h"
 
 #include <QDebug>
 #include <QDataStream>

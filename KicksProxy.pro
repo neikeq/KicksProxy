@@ -17,21 +17,21 @@ TEMPLATE = app
 
 SOURCES += main.cpp \
     singleinstance.cpp \
-    proxyserver.cpp \
     constants.cpp \
-    proxyclient.cpp \
-    workertask.cpp \
     packets/packetid.cpp \
     packets/cryptography.cpp \
-    packets/packethandler.cpp
+    packets/packethandler.cpp \
+    network/proxyclient.cpp \
+    network/proxyserver.cpp \
+    network/workertask.cpp
 
 HEADERS += \
     singleinstance.h \
-    proxyserver.h \
     constants.h \
-    proxyclient.h \
-    workertask.h \
     packets/packetid.h \
     packets/packettypes.h \
     packets/cryptography.h \
-    packets/packethandler.h
+    packets/packethandler.h \
+    network/proxyserver.h \
+    network/proxyclient.h \
+    network/workertask.h

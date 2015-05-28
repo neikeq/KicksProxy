@@ -1,7 +1,7 @@
 #include <QCoreApplication>
 #include <QDebug>
 
-#include "proxyserver.h"
+#include "network/proxyserver.h"
 #include "singleinstance.h"
 
 int main(int argc, char *argv[])

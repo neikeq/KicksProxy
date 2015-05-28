@@ -1,7 +1,7 @@
-#include "proxyclient.h"
+#include "network/proxyclient.h"
 
 #include "constants.h"
-#include "workertask.h"
+#include "network/workertask.h"
 
 ProxyClient::ProxyClient(QObject *parent) :
     QObject(parent)

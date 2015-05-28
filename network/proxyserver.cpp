@@ -1,7 +1,7 @@
-#include "proxyserver.h"
+#include "network/proxyserver.h"
 
 #include "constants.h"
-#include "proxyclient.h"
+#include "network/proxyclient.h"
 
 ProxyServer::ProxyServer(QObject *parent) :
     QTcpServer(parent)
