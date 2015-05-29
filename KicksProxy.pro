@@ -17,21 +17,31 @@ TEMPLATE = app
 
 SOURCES += main.cpp \
     singleinstance.cpp \
-    constants.cpp \
     packets/packetid.cpp \
     packets/cryptography.cpp \
     packets/packethandler.cpp \
     network/proxyclient.cpp \
     network/proxyserver.cpp \
-    network/workertask.cpp
+    network/workertask.cpp \
+    settings.cpp
 
 HEADERS += \
     singleinstance.h \
-    constants.h \
     packets/packetid.h \
     packets/packettypes.h \
     packets/cryptography.h \
     packets/packethandler.h \
     network/proxyserver.h \
     network/proxyclient.h \
-    network/workertask.h
+    network/workertask.h \
+    settings.h
+
+
+OTHER_FILES += proxy.ini
+
+# Copy settings file to the output directory
+copydata.commands = $(COPY_DIR) $$PWD/proxy.ini $$OUT_PWD
+first.depends = $(first) copydata
+export(first.depends)
+export(copydata.commands)
+QMAKE_EXTRA_TARGETS += first copydata

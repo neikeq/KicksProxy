@@ -4,7 +4,7 @@
 #include <QDataStream>
 #include <QIODevice>
 
-#include "constants.h"
+#include "settings.h"
 #include "packets/packethandler.h"
 
 WorkerTask::WorkerTask(QByteArray data)
@@ -34,8 +34,8 @@ void WorkerTask::run()
 
         quint32 readableBytes = length - readerIndex;
 
-        if (readableBytes >= Constants::HEADER_SIZE) {
-            int skip = Constants::BODY_SIZE_INDEX;
+        if (readableBytes >= Settings::HEADER_SIZE) {
+            int skip = Settings::BODY_SIZE_INDEX;
 
             if (readerIndex > 0) {
                 skip += bodySize - 4;
@@ -44,7 +44,7 @@ void WorkerTask::run()
             stream.skipRawData(skip);
             stream >> bodySize;
 
-            quint16 totalSize = bodySize + Constants::HEADER_SIZE;
+            quint16 totalSize = bodySize + Settings::HEADER_SIZE;
 
             if (readableBytes >= totalSize) {
                 quint32 messageId;

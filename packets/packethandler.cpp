@@ -2,7 +2,7 @@
 
 #include <QDebug>
 
-#include "constants.h"
+#include "settings.h"
 #include "packets/packetid.h"
 
 bool PacketHandler::handle(int messageId, const QByteArray &bytes, WorkerTask *workerTask)
@@ -20,8 +20,8 @@ PacketHandler::PacketHandler()
 {
     // Client Events
 
-    static quint32 intKey = (Constants::XOR_KEY << 24) | (Constants::XOR_KEY << 16) |
-                   (Constants::XOR_KEY << 8) | Constants::XOR_KEY;
+    static quint32 intKey = (Settings::XOR_KEY << 24) | (Settings::XOR_KEY << 16) |
+                   (Settings::XOR_KEY << 8) | Settings::XOR_KEY;
 
     events.insert(PacketId::CERTIFY_LOGIN ^ intKey,
                         [=] (WorkerTask *workerTask, const QByteArray &bytes) {

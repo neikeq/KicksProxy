@@ -1,6 +1,6 @@
 #include "network/proxyclient.h"
 
-#include "constants.h"
+#include "settings.h"
 #include "network/workertask.h"
 
 ProxyClient::ProxyClient(QObject *parent) :
@@ -38,7 +38,8 @@ void ProxyClient::connectToServer()
     connect(serverSocket, SIGNAL(readyRead()), this, SLOT(serverReadyRead()));
 
     // Connect to server
-    serverSocket->connectToHost(Constants::SERVER_ADDRESS, Constants::SERVER_PORT);
+    serverSocket->connectToHost(Settings::getInstance().getServerAddress(),
+                                Settings::getInstance().getServerPort());
 
     if (!serverSocket->waitForConnected()) {
         // If the connection to server failed, close the connection with the client

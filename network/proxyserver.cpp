@@ -1,6 +1,6 @@
 #include "network/proxyserver.h"
 
-#include "constants.h"
+#include "settings.h"
 #include "network/proxyclient.h"
 
 ProxyServer::ProxyServer(QObject *parent) :
@@ -10,10 +10,12 @@ ProxyServer::ProxyServer(QObject *parent) :
 
 void ProxyServer::startServer()
 {
-    if (listen(QHostAddress::Any, Constants::BIND_PORT)) {
-        qDebug() << "Listening on port " << Constants::BIND_PORT;
+    qint16 proxyPort = Settings::getInstance().getProxyPort();
+
+    if (listen(QHostAddress::Any, proxyPort)) {
+        qDebug() << "Listening on port " << proxyPort;
     } else {
-        qDebug() << "Error when trying to listen on port " << Constants::BIND_PORT;
+        qDebug() << "Error when trying to listen on port " << proxyPort;
     }
 }
 
