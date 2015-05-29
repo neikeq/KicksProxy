@@ -14,7 +14,7 @@ public:
     /**
      * @brief Starts listening for new connections
      */
-    void startServer();
+    void startServer(qint16 port);
 
 protected:
     void incomingConnection(qintptr handle);

@@ -38,8 +38,8 @@ void ProxyClient::connectToServer()
     connect(serverSocket, SIGNAL(readyRead()), this, SLOT(serverReadyRead()));
 
     // Connect to server
-    serverSocket->connectToHost(Settings::getInstance().getServerAddress(),
-                                Settings::getInstance().getServerPort());
+    serverSocket->connectToHost(Settings::instance().getServerAddress(),
+                                Settings::instance().getServerPort());
 
     if (!serverSocket->waitForConnected()) {
         // If the connection to server failed, close the connection with the client

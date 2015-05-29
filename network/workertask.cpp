@@ -66,7 +66,7 @@ void WorkerTask::readMessage(const QByteArray &data, quint32 messageId)
 {
     //const PHeader *header = reinterpret_cast<const PHeader*>(data.left(12).constData());
 
-    bool intercepted = PacketHandler::getInstance().handle(messageId, data, this);
+    bool intercepted = PacketHandler::instance().handle(messageId, data, this);
 
     if (!intercepted)
         emit write(data, writerIndex);

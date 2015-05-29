@@ -15,7 +15,7 @@ public:
     inline int getProxyPort() const { return proxyPort; }
     inline int getProxyPortFactor() const { return proxyPortFactor; }
 
-    static Settings& getInstance()
+    static Settings& instance()
     {
         static Settings instance;
         return instance;

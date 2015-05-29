@@ -1,7 +1,9 @@
 #include <QCoreApplication>
 #include <QDebug>
 
+#include "argumentsparser.h"
 #include "network/proxyserver.h"
+#include "settings.h"
 #include "singleinstance.h"
 
 int main(int argc, char *argv[])
@@ -20,8 +22,10 @@ int main(int argc, char *argv[])
 
     singleInstance.listen(name);
 
+    ArgumentsParser::instance().parseArguments(QCoreApplication::arguments());
+
     ProxyServer server;
-    server.startServer();
+    server.startServer(Settings::instance().getProxyPort());
 
     return a.exec();
 }

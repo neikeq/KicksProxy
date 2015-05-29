@@ -1,6 +1,8 @@
 #include "singleinstance.h"
 
-#include <QCoreApplication>
+#include <QDebug>
+
+#include "argumentsparser.h"
 
 SingleInstance::SingleInstance(QObject *parent) :
     QObject(parent)
@@ -57,8 +59,7 @@ void SingleInstance::readyRead()
 
     qDebug() << "Received arguments: " << arguments;
 
-    if (arguments.at(1) == "kill")
-        QCoreApplication::exit();
+    ArgumentsParser::instance().parseArguments(arguments);
 
     socket->deleteLater();
 }

@@ -8,14 +8,12 @@ ProxyServer::ProxyServer(QObject *parent) :
 {
 }
 
-void ProxyServer::startServer()
+void ProxyServer::startServer(qint16 port)
 {
-    qint16 proxyPort = Settings::getInstance().getProxyPort();
-
-    if (listen(QHostAddress::Any, proxyPort))
-        qDebug() << "Listening on port " << proxyPort;
+    if (listen(QHostAddress::Any, port))
+        qDebug() << "Listening on port " << port;
     else
-        qDebug() << "Error when trying to listen on port " << proxyPort;
+        qDebug() << "Error when trying to listen on port " << port;
 }
 
 void ProxyServer::incomingConnection(qintptr handle)

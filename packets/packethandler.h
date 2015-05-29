@@ -10,7 +10,7 @@
 class PacketHandler
 {
 public:
-    static PacketHandler& getInstance()
+    static PacketHandler& instance()
     {
         static PacketHandler instance;
         return instance;

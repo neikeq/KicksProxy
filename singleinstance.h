@@ -1,7 +1,6 @@
 #ifndef SINGLEINSTANCE_H
 #define SINGLEINSTANCE_H
 
-#include <QDebug>
 #include <QLocalServer>
 #include <QLocalSocket>
 #include <QObject>
@@ -33,7 +32,6 @@ public slots:
 private:
     QLocalSocket* socket;
     QLocalServer server;
-
 };
 
 #endif // SINGLEINSTANCE_H

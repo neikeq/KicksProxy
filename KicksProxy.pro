@@ -23,7 +23,8 @@ SOURCES += main.cpp \
     network/proxyclient.cpp \
     network/proxyserver.cpp \
     network/workertask.cpp \
-    settings.cpp
+    settings.cpp \
+    argumentsparser.cpp
 
 HEADERS += \
     singleinstance.h \
@@ -34,7 +35,8 @@ HEADERS += \
     network/proxyserver.h \
     network/proxyclient.h \
     network/workertask.h \
-    settings.h
+    settings.h \
+    argumentsparser.h
 
 
 OTHER_FILES += proxy.ini
