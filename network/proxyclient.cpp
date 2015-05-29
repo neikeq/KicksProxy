@@ -140,16 +140,14 @@ void ProxyClient::clientReadComplete(int readerIndex)
     // Clear readed data
     clientData->remove(0, readerIndex);
 
-    if (serverSocket != 0 && serverSocket->isOpen()) {
+    if (serverSocket != 0 && serverSocket->isOpen())
         serverSocket->flush();
-    }
 }
 
 void ProxyClient::clientWrite(const QByteArray &data, int writerIndex)
 {
-    if (serverSocket != 0 && serverSocket->isWritable() && serverSocket->isOpen()) {
+    if (serverSocket != 0 && serverSocket->isWritable() && serverSocket->isOpen())
         serverSocket->write(data);
-    }
 
     this->clientWriterIndex = writerIndex;
 }
@@ -159,16 +157,14 @@ void ProxyClient::serverReadComplete(int readerIndex)
     // Clear readed data
     serverData->remove(0, readerIndex);
 
-    if (clientSocket != 0 && clientSocket->isOpen()) {
+    if (clientSocket != 0 && clientSocket->isOpen())
         clientSocket->flush();
-    }
 }
 
 void ProxyClient::serverWrite(const QByteArray &data, int writerIndex)
 {
-    if (clientSocket != 0 && clientSocket->isWritable() && clientSocket->isOpen()) {
+    if (clientSocket != 0 && clientSocket->isWritable() && clientSocket->isOpen())
         clientSocket->write(data);
-    }
 
     this->serverWriterIndex = writerIndex;
 }

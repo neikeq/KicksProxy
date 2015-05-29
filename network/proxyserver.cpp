@@ -12,11 +12,10 @@ void ProxyServer::startServer()
 {
     qint16 proxyPort = Settings::getInstance().getProxyPort();
 
-    if (listen(QHostAddress::Any, proxyPort)) {
+    if (listen(QHostAddress::Any, proxyPort))
         qDebug() << "Listening on port " << proxyPort;
-    } else {
+    else
         qDebug() << "Error when trying to listen on port " << proxyPort;
-    }
 }
 
 void ProxyServer::incomingConnection(qintptr handle)

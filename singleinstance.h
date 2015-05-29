@@ -1,10 +1,10 @@
 #ifndef SINGLEINSTANCE_H
 #define SINGLEINSTANCE_H
 
-#include <QObject>
 #include <QDebug>
 #include <QLocalServer>
 #include <QLocalSocket>
+#include <QObject>
 
 class SingleInstance : public QObject
 {
@@ -16,14 +16,14 @@ public:
      * @brief Listen for connections
      * @param name
      */
-    void listen(QString name);
+    void listen(const QString &name);
 
     /**
      * @brief Check if an instance is already running
      * @param name
      * @return
      */
-    bool instanceExists(QString name);
+    bool instanceExists(const QString &name, const QStringList &arguments);
 signals:
 
 public slots:

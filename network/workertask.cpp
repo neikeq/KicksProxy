@@ -37,9 +37,8 @@ void WorkerTask::run()
         if (readableBytes >= Settings::HEADER_SIZE) {
             int skip = Settings::BODY_SIZE_INDEX;
 
-            if (readerIndex > 0) {
+            if (readerIndex > 0)
                 skip += bodySize - 4;
-            }
 
             stream.skipRawData(skip);
             stream >> bodySize;
@@ -69,7 +68,6 @@ void WorkerTask::readMessage(const QByteArray &data, quint32 messageId)
 
     bool intercepted = PacketHandler::getInstance().handle(messageId, data, this);
 
-    if (!intercepted) {
+    if (!intercepted)
         emit write(data, writerIndex);
-    }
 }

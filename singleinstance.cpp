@@ -1,12 +1,14 @@
 #include "singleinstance.h"
 
+#include <QCoreApplication>
+
 SingleInstance::SingleInstance(QObject *parent) :
     QObject(parent)
 {
     connect(&server, SIGNAL(newConnection()), this, SLOT(newConnection()));
 }
 
-void SingleInstance::listen(QString name)
+void SingleInstance::listen(const QString &name)
 {
     server.removeServer(name);
     server.listen(name);
@@ -15,7 +17,7 @@ void SingleInstance::listen(QString name)
     qDebug() << server.errorString();
 }
 
-bool SingleInstance::instanceExists(QString name)
+bool SingleInstance::instanceExists(const QString &name, const QStringList &arguments)
 {
     qDebug() << "Checking if a previous instance exists...";
 
@@ -23,6 +25,15 @@ bool SingleInstance::instanceExists(QString name)
     socket.connectToServer(name, QLocalSocket::ReadWrite);
 
     bool instanceExists = socket.waitForConnected();
+
+    if (instanceExists) {
+        QByteArray data;
+        QDataStream out(&data, QIODevice::WriteOnly);
+        out << arguments;
+
+        socket.write(data);
+        socket.flush();
+    }
 
     qDebug() << socket.errorString();
 
@@ -38,5 +49,16 @@ void SingleInstance::newConnection()
 
 void SingleInstance::readyRead()
 {
+    QByteArray data = socket->readAll();
+    QDataStream in(&data, QIODevice::ReadOnly);
+
+    QStringList arguments;
+    in >> arguments;
+
+    qDebug() << "Received arguments: " << arguments;
+
+    if (arguments.at(1) == "kill")
+        QCoreApplication::exit();
+
     socket->deleteLater();
 }
