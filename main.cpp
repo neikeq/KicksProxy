@@ -3,6 +3,7 @@
 
 #include "argumentsparser.h"
 #include "network/proxyserver.h"
+#include "network/servermanager.h"
 #include "settings.h"
 #include "singleinstance.h"
 
@@ -24,8 +25,8 @@ int main(int argc, char *argv[])
 
     ArgumentsParser::instance().parseArguments(QCoreApplication::arguments());
 
-    ProxyServer server;
-    server.startServer(Settings::instance().getProxyPort());
+    emit ServerManager::instance().addServer(99, Settings::instance().getServerAddress(),
+                                        Settings::instance().getServerPort());
 
     return a.exec();
 }

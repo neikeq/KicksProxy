@@ -35,8 +35,7 @@ private:
     QMap<quint32, std::function<void(WorkerTask *workerTask, const QByteArray &bytes)>> events;
 
     // Message event methods
-    void clientCertifyLogin(WorkerTask *workerTask, const QByteArray &bytes);
-    void serverCertifyLogin(WorkerTask *workerTask, const QByteArray &bytes);
+    void serverServerInfo(WorkerTask *workerTask, const QByteArray &bytes);
 };
 
 #endif // MESSAGEHANDLER_H

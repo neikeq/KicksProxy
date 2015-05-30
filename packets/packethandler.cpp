@@ -3,7 +3,11 @@
 #include <QDebug>
 
 #include "settings.h"
+#include "settings.h"
 #include "packets/packetid.h"
+#include "packets/packettypes.h"
+#include "network/proxyserver.h"
+#include "network/servermanager.h"
 
 bool PacketHandler::handle(int messageId, const QByteArray &bytes, WorkerTask *workerTask)
 {
@@ -25,28 +29,37 @@ PacketHandler::PacketHandler()
 
     events.insert(PacketId::CERTIFY_LOGIN ^ intKey,
                         [=] (WorkerTask *workerTask, const QByteArray &bytes) {
-        clientCertifyLogin(workerTask, bytes);
+        //workerTask->ignoreCurrent(); // Ignore the packet so the client will not receive it
+        emit workerTask->write(bytes, workerTask->getWriterIndex());
     });
 
     // Server Events
 
-    events.insert(PacketId::CERTIFY_LOGIN,
+    events.insert(PacketId::SERVER_INFO,
                         [=] (WorkerTask *workerTask, const QByteArray &bytes) {
-        serverCertifyLogin(workerTask, bytes);
+        serverServerInfo(workerTask, bytes);
     });
 }
 
-void PacketHandler::clientCertifyLogin(WorkerTask *workerTask, const QByteArray &bytes)
+void PacketHandler::serverServerInfo(WorkerTask *workerTask, const QByteArray &bytes)
 {
-    qDebug() << "Received client's CertifyLogin with size: " << bytes.size();
+    PacketHeader *header = reinterpret_cast<PacketHeader*>
+            (bytes.left(Settings::HEADER_SIZE).data());
+    SCServerInfo *body = reinterpret_cast<SCServerInfo*>
+            (bytes.mid(Settings::HEADER_SIZE, header->bodySize).data());
 
-    emit workerTask->write(bytes, workerTask->getWriterIndex());
-}
+    QString serverAddress = QString(body->serverIp);
+    quint16 serverPort = body->serverPort;
 
-void PacketHandler::serverCertifyLogin(WorkerTask *workerTask, const QByteArray &bytes)
-{
-    qDebug() << "Received server's CertifyLogin with size: " << bytes.size();
+    static QByteArray localhost = QString("127.0.0.1\0").toLocal8Bit();
+    memcpy(body->serverIp, localhost.constData(), localhost.size() + 1);
 
-    // Ignore the packet so the client will not receive it
-    workerTask->ignoreCurrent();
+    body->serverPort = Settings::instance().getProxyPortFactor() + body->serverId;
+
+    QByteArray modified(reinterpret_cast<char*>(header), sizeof(*header));
+    modified.append(reinterpret_cast<char*>(body), sizeof(*body));
+
+    emit ServerManager::instance().addServer(body->serverId, serverAddress, serverPort);
+
+    emit workerTask->write(modified, workerTask->getWriterIndex());
 }

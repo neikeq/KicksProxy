@@ -16,7 +16,6 @@ Settings::Settings()
     settings.endGroup();
 
     settings.beginGroup("Proxy");
-    proxyPort = settings.value("Port").toInt();
     proxyPortFactor = settings.value("PortFactor").toInt();
     settings.endGroup();
 }

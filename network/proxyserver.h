@@ -9,19 +9,21 @@ class ProxyServer : public QTcpServer
 {
     Q_OBJECT
 public:
-    explicit ProxyServer(QObject *parent = 0);
+    explicit ProxyServer(const QString &targetAddress, qint16 targetPort, QObject *parent = 0);
 
     /**
      * @brief Starts listening for new connections
      */
     void startServer(qint16 port);
 
-protected:
-    void incomingConnection(qintptr handle);
-
 signals:
 
 public slots:
+    void newIncomingConnection();
+
+private:
+    QString targetAddress;
+    qint16 targetPort;
 
 };
 

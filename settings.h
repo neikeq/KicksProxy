@@ -12,7 +12,6 @@ public:
 
     inline const QString& getServerAddress() const { return serverAddress; }
     inline int getServerPort() const { return serverPort; }
-    inline int getProxyPort() const { return proxyPort; }
     inline int getProxyPortFactor() const { return proxyPortFactor; }
 
     static Settings& instance()
@@ -30,7 +29,6 @@ private:
 
     QString serverAddress;
     qint16 serverPort;
-    qint16 proxyPort;
     qint16 proxyPortFactor;
 };
 

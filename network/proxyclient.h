@@ -16,16 +16,14 @@ public:
      * @brief Initializes the proxy between client and server
      * @param Socket descriptor for the client connection
      */
-    void initializeProxy(int clientDescriptor);
+    void initializeProxy(QTcpSocket *clientSocket, QTcpSocket *serverSocket);
 
 signals:
 
 public slots:
     // socket slots
-    void clientConnected();
     void clientDisconnected();
     void clientReadyRead();
-    void serverConnected();
     void serverDisconnected();
     void serverReadyRead();
 
@@ -56,11 +54,6 @@ public slots:
     }
 
 private:
-    /**
-     * @brief Opens the connection with the server
-     */
-    void connectToServer();
-
     QThreadPool *threadPool;
 
     QTcpSocket *clientSocket;

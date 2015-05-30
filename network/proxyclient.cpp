@@ -13,43 +13,20 @@ ProxyClient::ProxyClient(QObject *parent) :
     serverData = new QByteArray();
 }
 
-void ProxyClient::initializeProxy(int clientDescriptor)
+void ProxyClient::initializeProxy(QTcpSocket *clientSocket, QTcpSocket *serverSocket)
 {
     // Initialize client socket
-    clientSocket = new QTcpSocket(this);
+    this->clientSocket = clientSocket;
 
-    connect(clientSocket, SIGNAL(connected()), this, SLOT(clientConnected()));
     connect(clientSocket, SIGNAL(disconnected()), this, SLOT(clientDisconnected()));
     connect(clientSocket, SIGNAL(readyRead()), this, SLOT(clientReadyRead()));
 
-    clientSocket->setSocketDescriptor(clientDescriptor);
-
-    // Open the connection with the server
-    connectToServer();
-}
-
-void ProxyClient::connectToServer()
-{
     // Initialize server socket
-    serverSocket = new QTcpSocket(this);
 
-    connect(serverSocket, SIGNAL(connected()), this, SLOT(serverConnected()));
+    this->serverSocket = serverSocket;
+
     connect(serverSocket, SIGNAL(disconnected()), this, SLOT(serverDisconnected()));
     connect(serverSocket, SIGNAL(readyRead()), this, SLOT(serverReadyRead()));
-
-    // Connect to server
-    serverSocket->connectToHost(Settings::instance().getServerAddress(),
-                                Settings::instance().getServerPort());
-
-    if (!serverSocket->waitForConnected()) {
-        // If the connection to server failed, close the connection with the client
-        clientSocket->close();
-    }
-}
-
-void ProxyClient::clientConnected()
-{
-    qDebug() << "Connected to client.";
 }
 
 void ProxyClient::clientDisconnected()
@@ -77,23 +54,20 @@ void ProxyClient::clientDisconnected()
 
 void ProxyClient::clientReadyRead()
 {
-    this->clientWriterIndex = 0;
+    if (clientSocket != 0) {
+        this->clientWriterIndex = 0;
 
-    clientData->append(clientSocket->readAll());
+        clientData->append(clientSocket->readAll());
 
-    WorkerTask *task = new WorkerTask(*clientData);
-    task->setAutoDelete(true);
+        WorkerTask *task = new WorkerTask(*clientData);
+        task->setAutoDelete(true);
 
-    connect(task, SIGNAL(readComplete(int)), this, SLOT(clientReadComplete(int)));
-    connect(task, SIGNAL(write(QByteArray, int)), this, SLOT(clientWrite(QByteArray, int)));
-    connect(task, SIGNAL(updateWriterIndex(int)), this, SLOT(updateClientWriterIndex(int)));
+        connect(task, SIGNAL(readComplete(int)), this, SLOT(clientReadComplete(int)));
+        connect(task, SIGNAL(write(QByteArray, int)), this, SLOT(clientWrite(QByteArray, int)));
+        connect(task, SIGNAL(updateWriterIndex(int)), this, SLOT(updateClientWriterIndex(int)));
 
-    threadPool->start(task);
-}
-
-void ProxyClient::serverConnected()
-{
-    qDebug() << "Connected to server.";
+        threadPool->start(task);
+    }
 }
 
 void ProxyClient::serverDisconnected()
@@ -121,18 +95,20 @@ void ProxyClient::serverDisconnected()
 
 void ProxyClient::serverReadyRead()
 {
-    this->serverWriterIndex = 0;
+    if (serverSocket != 0) {
+        this->serverWriterIndex = 0;
 
-    serverData->append(serverSocket->readAll());
+        serverData->append(serverSocket->readAll());
 
-    WorkerTask *task = new WorkerTask(*serverData);
-    task->setAutoDelete(true);
+        WorkerTask *task = new WorkerTask(*serverData);
+        task->setAutoDelete(true);
 
-    connect(task, SIGNAL(readComplete(int)), this, SLOT(serverReadComplete(int)));
-    connect(task, SIGNAL(write(QByteArray, int)), this, SLOT(serverWrite(QByteArray, int)));
-    connect(task, SIGNAL(updateWriterIndex(int)), this, SLOT(updateServerWriterIndex(int)));
+        connect(task, SIGNAL(readComplete(int)), this, SLOT(serverReadComplete(int)));
+        connect(task, SIGNAL(write(QByteArray, int)), this, SLOT(serverWrite(QByteArray, int)));
+        connect(task, SIGNAL(updateWriterIndex(int)), this, SLOT(updateServerWriterIndex(int)));
 
-    threadPool->start(task);
+        threadPool->start(task);
+    }
 }
 
 void ProxyClient::clientReadComplete(int readerIndex)
@@ -149,7 +125,9 @@ void ProxyClient::clientWrite(const QByteArray &data, int writerIndex)
     if (serverSocket != 0 && serverSocket->isWritable() && serverSocket->isOpen())
         serverSocket->write(data);
 
-    this->clientWriterIndex = writerIndex;
+    if (writerIndex > 0) {
+        this->clientWriterIndex = writerIndex;
+    }
 }
 
 void ProxyClient::serverReadComplete(int readerIndex)
@@ -166,5 +144,7 @@ void ProxyClient::serverWrite(const QByteArray &data, int writerIndex)
     if (clientSocket != 0 && clientSocket->isWritable() && clientSocket->isOpen())
         clientSocket->write(data);
 
-    this->serverWriterIndex = writerIndex;
+    if (writerIndex > 0) {
+        this->serverWriterIndex = writerIndex;
+    }
 }

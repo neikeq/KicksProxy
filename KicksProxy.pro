@@ -22,6 +22,7 @@ SOURCES += main.cpp \
     packets/packethandler.cpp \
     network/proxyclient.cpp \
     network/proxyserver.cpp \
+    network/servermanager.cpp \
     network/workertask.cpp \
     settings.cpp \
     argumentsparser.cpp
@@ -34,6 +35,7 @@ HEADERS += \
     packets/packethandler.h \
     network/proxyserver.h \
     network/proxyclient.h \
+    network/servermanager.h \
     network/workertask.h \
     settings.h \
     argumentsparser.h
