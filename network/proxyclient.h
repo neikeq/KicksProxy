@@ -19,6 +19,7 @@ public:
     void initializeProxy(QTcpSocket *clientSocket, QTcpSocket *serverSocket);
 
 signals:
+    void disconnected();
 
 public slots:
     // socket slots

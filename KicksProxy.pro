@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core network gui
+QT       += core network
 
 TARGET = KicksProxy
 
@@ -25,7 +25,8 @@ SOURCES += main.cpp \
     network/servermanager.cpp \
     network/workertask.cpp \
     settings.cpp \
-    argumentsparser.cpp
+    argumentsparser.cpp \
+    network/udpproxy.cpp
 
 HEADERS += \
     singleinstance.h \
@@ -38,7 +39,8 @@ HEADERS += \
     network/servermanager.h \
     network/workertask.h \
     settings.h \
-    argumentsparser.h
+    argumentsparser.h \
+    network/udpproxy.h
 
 
 OTHER_FILES += proxy.ini

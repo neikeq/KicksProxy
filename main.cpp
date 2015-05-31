@@ -2,7 +2,6 @@
 #include <QDebug>
 
 #include "argumentsparser.h"
-#include "network/proxyserver.h"
 #include "network/servermanager.h"
 #include "settings.h"
 #include "singleinstance.h"

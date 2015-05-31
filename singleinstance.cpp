@@ -13,10 +13,11 @@ SingleInstance::SingleInstance(QObject *parent) :
 void SingleInstance::listen(const QString &name)
 {
     server.removeServer(name);
-    server.listen(name);
 
-    qDebug() << "Listening on: " << name;
-    qDebug() << server.errorString();
+    if (server.listen(name))
+        qDebug() << "Listening on: " << name;
+    else
+        qDebug() << server.errorString();
 }
 
 bool SingleInstance::instanceExists(const QString &name, const QStringList &arguments)
@@ -35,9 +36,9 @@ bool SingleInstance::instanceExists(const QString &name, const QStringList &argu
 
         socket.write(data);
         socket.flush();
+    } else if (socket.error() != QLocalSocket::ConnectionRefusedError) {
+        qDebug() << socket.errorString();
     }
-
-    qDebug() << socket.errorString();
 
     return instanceExists;
 }

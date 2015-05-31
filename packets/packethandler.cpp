@@ -6,7 +6,6 @@
 #include "settings.h"
 #include "packets/packetid.h"
 #include "packets/packettypes.h"
-#include "network/proxyserver.h"
 #include "network/servermanager.h"
 
 bool PacketHandler::handle(int messageId, const QByteArray &bytes, WorkerTask *workerTask)

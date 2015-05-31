@@ -17,11 +17,11 @@ public:
     }
 
 signals:
-    void addServer(quint16 serverId, const QString &targetAddress, qint16 targetPort);
+    void addServer(quint16 serverId, const QString &targetAddress, quint16 targetPort);
 
 public slots:
-    void addProxyServer(quint16 serverId, const QString &targetAddress, qint16 targetPort);
-
+    void addProxyServer(quint16 serverId, const QString &targetAddress, quint16 targetPort);
+    void removeServer();
 private:
     explicit ServerManager(QObject *parent = 0);
 

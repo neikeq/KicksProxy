@@ -50,6 +50,8 @@ void ProxyClient::clientDisconnected()
         serverSocket->deleteLater();
         serverSocket = 0;
     }
+
+    emit disconnected();
 }
 
 void ProxyClient::clientReadyRead()

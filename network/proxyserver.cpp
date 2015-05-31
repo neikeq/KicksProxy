@@ -1,43 +1,69 @@
 #include "network/proxyserver.h"
 
 #include "settings.h"
-#include "network/proxyclient.h"
 
-ProxyServer::ProxyServer(const QString &targetAddress, qint16 targetPort, QObject *parent) :
-    QTcpServer(parent)
+ProxyServer::ProxyServer(const QString &targetAddress, quint16 targetPort,
+                         quint16 serverId, QObject *parent) : QTcpServer(parent)
 {
+    this->serverId = serverId;
     this->targetAddress = targetAddress;
     this->targetPort = targetPort;
 }
 
-void ProxyServer::startServer(qint16 port)
+bool ProxyServer::startServer(quint16 port)
 {
-    connect(this, SIGNAL(newConnection()), this, SLOT(newIncomingConnection()));
+    connect(this, SIGNAL(newConnection()), this, SLOT(onNewConnection()));
 
-    if (listen(QHostAddress::Any, port))
+    bool listening = listen(QHostAddress::Any, port);
+
+    if (listening)
         qDebug() << "Listening on port " << port;
     else
-        qDebug() << "Error when trying to listen on port " << port;
+        qDebug() << this->errorString();
+
+    return listening;
 }
 
-void ProxyServer::newIncomingConnection()
+void ProxyServer::onNewConnection()
 {
     // Initialize proxy between client and server
     ProxyClient *client = new ProxyClient(this);
 
+    connect(client, SIGNAL(disconnected()), this, SLOT(clientDisconnected()));
+
+    clients.append(client);
+
     QTcpSocket *clientSocket = this->nextPendingConnection();
     QTcpSocket *serverSocket = new QTcpSocket(this);
-
-    connect(serverSocket, SIGNAL(connected()), client, SLOT(serverConnected()));
 
     serverSocket->connectToHost(targetAddress, targetPort);
 
     if (serverSocket->waitForConnected()) {
         qDebug() << "Connected to server.";
+
         client->initializeProxy(clientSocket, serverSocket);
     } else {
         // The connection with server failed, close the client socket
         qDebug() << "Cannot connect to server.";
         clientSocket->deleteLater();
+    }
+}
+
+void ProxyServer::clientDisconnected()
+{
+    if (sender() != 0) {
+        ProxyClient *client = static_cast<ProxyClient*>(sender());
+
+        int index = clients.indexOf(client);
+
+        if (index != -1) {
+            clients.remove(index);
+        }
+
+        delete client;
+
+        if (clients.size() == 0) {
+            emit disconnected();
+        }
     }
 }
