@@ -3,14 +3,19 @@
 #include "settings.h"
 #include "network/workertask.h"
 
-ProxyClient::ProxyClient(QObject *parent) :
+ProxyClient::ProxyClient(quint16 serverId, QObject *parent) :
     QObject(parent)
 {
+    this->serverId = serverId;
+
     threadPool = new QThreadPool(this);
     threadPool->setMaxThreadCount(5);
 
     clientData = new QByteArray();
     serverData = new QByteArray();
+
+    clientReading = NotReading;
+    serverReading = NotReading;
 }
 
 void ProxyClient::initializeProxy(QTcpSocket *clientSocket, QTcpSocket *serverSocket)
@@ -57,11 +62,18 @@ void ProxyClient::clientDisconnected()
 void ProxyClient::clientReadyRead()
 {
     if (clientSocket != 0) {
+        if (clientReading != NotReading) {
+            clientReading = ReadingPending;
+            return;
+        }
+
+        clientReading = Reading;
+
         this->clientWriterIndex = 0;
 
         clientData->append(clientSocket->readAll());
 
-        WorkerTask *task = new WorkerTask(*clientData);
+        WorkerTask *task = new WorkerTask(*clientData, serverId);
         task->setAutoDelete(true);
 
         connect(task, SIGNAL(readComplete(int)), this, SLOT(clientReadComplete(int)));
@@ -98,11 +110,18 @@ void ProxyClient::serverDisconnected()
 void ProxyClient::serverReadyRead()
 {
     if (serverSocket != 0) {
+        if (serverReading != NotReading) {
+            serverReading = ReadingPending;
+            return;
+        }
+
+        serverReading = Reading;
+
         this->serverWriterIndex = 0;
 
         serverData->append(serverSocket->readAll());
 
-        WorkerTask *task = new WorkerTask(*serverData);
+        WorkerTask *task = new WorkerTask(*serverData, serverId);
         task->setAutoDelete(true);
 
         connect(task, SIGNAL(readComplete(int)), this, SLOT(serverReadComplete(int)));
@@ -120,6 +139,13 @@ void ProxyClient::clientReadComplete(int readerIndex)
 
     if (serverSocket != 0 && serverSocket->isOpen())
         serverSocket->flush();
+
+    if (clientReading == ReadingPending) {
+        clientReading = NotReading;
+        clientReadyRead();
+    } else {
+        clientReading = NotReading;
+    }
 }
 
 void ProxyClient::clientWrite(const QByteArray &data, int writerIndex)
@@ -139,6 +165,13 @@ void ProxyClient::serverReadComplete(int readerIndex)
 
     if (clientSocket != 0 && clientSocket->isOpen())
         clientSocket->flush();
+
+    if (serverReading == ReadingPending) {
+        serverReading = NotReading;
+        serverReadyRead();
+    } else {
+        serverReading = NotReading;
+    }
 }
 
 void ProxyClient::serverWrite(const QByteArray &data, int writerIndex)

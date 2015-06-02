@@ -27,7 +27,7 @@ bool ProxyServer::startServer(quint16 port)
 void ProxyServer::onNewConnection()
 {
     // Initialize proxy between client and server
-    ProxyClient *client = new ProxyClient(this);
+    ProxyClient *client = new ProxyClient(serverId, this);
 
     connect(client, SIGNAL(disconnected()), this, SLOT(clientDisconnected()));
 

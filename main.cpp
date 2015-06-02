@@ -24,8 +24,8 @@ int main(int argc, char *argv[])
 
     ArgumentsParser::instance().parseArguments(QCoreApplication::arguments());
 
-    emit ServerManager::instance().addServer(99, Settings::instance().getServerAddress(),
-                                        Settings::instance().getServerPort());
-
+    emit ServerManager::instance().addServer(Settings::MAIN_SERVER_ID,
+                                             Settings::instance().getServerAddress(),
+                                             Settings::instance().getServerPort());
     return a.exec();
 }

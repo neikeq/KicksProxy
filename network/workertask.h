@@ -8,7 +8,7 @@ class WorkerTask : public QObject, public QRunnable
 {
     Q_OBJECT
 public:
-    explicit WorkerTask(QByteArray data);
+    explicit WorkerTask(QByteArray data, quint16 serverId);
 
     /**
      * @brief Must be called when ignoring a packet
@@ -16,6 +16,7 @@ public:
     void ignoreCurrent();
 
     inline int getWriterIndex() const { return writerIndex; }
+    inline quint16 getServerId() const { return serverId; }
 
 signals:
     void readComplete(int readerIndex);
@@ -36,7 +37,7 @@ private:
     void readMessage(const QByteArray &data, quint32 messagdId);
 
     QByteArray data;
-
+    quint16 serverId;
     int writerIndex;
 
 };

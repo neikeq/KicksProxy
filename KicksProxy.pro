@@ -26,12 +26,11 @@ SOURCES += main.cpp \
     network/workertask.cpp \
     settings.cpp \
     argumentsparser.cpp \
-    network/udpproxy.cpp
+    network/udpserver.cpp
 
 HEADERS += \
     singleinstance.h \
     packets/packetid.h \
-    packets/packettypes.h \
     packets/cryptography.h \
     packets/packethandler.h \
     network/proxyserver.h \
@@ -40,7 +39,7 @@ HEADERS += \
     network/workertask.h \
     settings.h \
     argumentsparser.h \
-    network/udpproxy.h
+    network/udpserver.h
 
 
 OTHER_FILES += proxy.ini

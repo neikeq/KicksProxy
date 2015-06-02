@@ -7,9 +7,10 @@
 #include "settings.h"
 #include "packets/packethandler.h"
 
-WorkerTask::WorkerTask(QByteArray data)
+WorkerTask::WorkerTask(QByteArray data, quint16 serverId)
 {
     this->data = data;
+    this->serverId = serverId;
     this->writerIndex = 0;
 }
 

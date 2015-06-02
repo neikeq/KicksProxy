@@ -5,12 +5,13 @@
 #include <QObject>
 #include <QTcpSocket>
 #include <QThreadPool>
+#include <QUdpSocket>
 
 class ProxyClient : public QObject
 {
     Q_OBJECT
 public:
-    explicit ProxyClient(QObject *parent = 0);
+    explicit ProxyClient(quint16 serverId, QObject *parent = 0);
 
     /**
      * @brief Initializes the proxy between client and server
@@ -55,6 +56,12 @@ public slots:
     }
 
 private:
+    enum ReadingState {
+        NotReading,
+        Reading,
+        ReadingPending
+    };
+
     QThreadPool *threadPool;
 
     QTcpSocket *clientSocket;
@@ -65,6 +72,11 @@ private:
 
     int clientWriterIndex;
     int serverWriterIndex;
+
+    ReadingState clientReading;
+    ReadingState serverReading;
+
+    quint16 serverId;
 };
 
 #endif // PROXYCLIENT_H

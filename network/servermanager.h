@@ -1,10 +1,10 @@
 #ifndef SERVERMANAGER_H
 #define SERVERMANAGER_H
 
-#include <QMap>
 #include <QObject>
 
 #include "network/proxyserver.h"
+#include "network/udpserver.h"
 
 class ServerManager : public QObject
 {
@@ -15,6 +15,8 @@ public:
         static ServerManager instance;
         return instance;
     }
+
+    inline UdpServer* getUdpServer(quint16 serverId) const { return udpServers[serverId]; }
 
 signals:
     void addServer(quint16 serverId, const QString &targetAddress, quint16 targetPort);
@@ -29,7 +31,8 @@ private:
     ServerManager(ServerManager const&) = delete;
     void operator=(ServerManager const&) = delete;
 
-    QMap<quint16, ProxyServer*> servers;
+    QHash<quint16, ProxyServer*> servers;
+    QHash<quint16, UdpServer*> udpServers;
 
 };
 

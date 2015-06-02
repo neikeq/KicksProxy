@@ -2,7 +2,7 @@
 #define MESSAGEHANDLER_H
 
 #include <functional>
-#include <QMap>
+#include <QHash>
 #include <QObject>
 
 #include "network/workertask.h"
@@ -32,10 +32,12 @@ private:
     PacketHandler(PacketHandler const&) = delete;
     void operator=(PacketHandler const&) = delete;
 
-    QMap<quint32, std::function<void(WorkerTask *workerTask, const QByteArray &bytes)>> events;
+    QHash<quint32, std::function<void(WorkerTask *workerTask, const QByteArray &bytes)>> events;
 
     // Message event methods
     void serverServerInfo(WorkerTask *workerTask, const QByteArray &bytes);
+    void serverRoomPlayerInfo(WorkerTask *workerTask, const QByteArray &bytes);
+    void serverLeaveRoom(WorkerTask *workerTask, const QByteArray &bytes);
 };
 
 #endif // MESSAGEHANDLER_H
