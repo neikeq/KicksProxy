@@ -4,7 +4,9 @@
 #include <QObject>
 #include <QUdpSocket>
 
+#ifndef PLAYER_INFO_MAP
 #define PLAYER_INFO_MAP QHash<quint16, PlayerInfo>
+#endif
 
 class UdpServer : public QObject
 {
@@ -24,11 +26,13 @@ public slots:
     void onRemovePlayer(quint32 mapId, quint32 playerId);
     void onSetPlayerInfo(quint32 mapId, quint32 playerId, QString address, quint16 port);
 private:
+    QByteArray updatePortPacket(quint32 playerId, quint16 port);
+
     QUdpSocket *socket;
+    quint16 bindPort;
 
     QHostAddress serverAddress;
     quint16 serverPort;
-    quint16 bindPort;
 
     struct PlayerInfo {
         QHostAddress address;

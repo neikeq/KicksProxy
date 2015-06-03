@@ -48,9 +48,10 @@ void UdpServer::readyRead()
     in >> targetId;
     in >> bodySize;
 
-    if (bodySize >= 4) {
-        in >> packetId;
-    }
+    if (bodySize < 4)
+        return;
+
+    in >> packetId;
 
     bool isServerDatagram = senderPort == serverPort;
 
@@ -66,6 +67,8 @@ void UdpServer::readyRead()
         writeDatagram(datagram, playerInfo.address, playerInfo.port);
     }
 
+    bool updatedPort = false;
+
     if (!isServerDatagram && playerId == senderId) {
         if (!players.contains(playerId)) {
             PlayerInfo senderInfo;
@@ -74,6 +77,8 @@ void UdpServer::readyRead()
             senderInfo.port = senderPort;
 
             players.insert(playerId, senderInfo);
+
+            updatedPort = true;
         } else {
             PlayerInfo &playerInfo = players[playerId];
 
@@ -82,16 +87,37 @@ void UdpServer::readyRead()
 
                 senderInfo.address = sender;
                 senderInfo.port = senderPort;
+
+                updatedPort = true;
             }
         }
     }
+
+    if (updatedPort)
+        writeDatagram(updatePortPacket(playerId, senderPort), serverAddress, serverPort);
+}
+
+QByteArray UdpServer::updatePortPacket(quint32 playerId, quint16 port)
+{
+    QByteArray datagram;
+
+    QDataStream out(&datagram, QIODevice::WriteOnly);
+    out.setByteOrder(QDataStream::LittleEndian);
+
+    out << static_cast<quint16>(0);
+    out << playerId;
+    out << static_cast<quint32>(0);
+    out << static_cast<quint16>(6);
+    out << PacketId::PROXY_UPDATE_PORT;
+    out << port;
+
+    return datagram;
 }
 
 void UdpServer::onSetPlayerInfo(quint32 mapId, quint32 playerId, QString address, quint16 port)
 {
-    if (!playerMaps.contains(mapId)) {
+    if (!playerMaps.contains(mapId))
         playerMaps.insert(mapId, PLAYER_INFO_MAP());
-    }
 
     PLAYER_INFO_MAP &players = playerMaps[mapId];
 
@@ -113,7 +139,11 @@ void UdpServer::onSetPlayerInfo(quint32 mapId, quint32 playerId, QString address
 // TODO call when client is disconnecting
 void UdpServer::onClearPlayerMap(quint32 mapId)
 {
-    playerMaps[mapId].clear();
+    PLAYER_INFO_MAP &players = playerMaps[mapId];
+    PlayerInfo playerInfo = players[mapId];
+    players.clear();
+    players.insert(mapId, playerInfo);
+
 }
 
 void UdpServer::onRemovePlayer(quint32 mapId, quint32 playerId)

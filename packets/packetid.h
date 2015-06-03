@@ -93,6 +93,9 @@ public:
     static const quint32 UDP_GAME_3;
     static const quint32 UDP_GAME_4;
     static const quint32 UDP_GAME_5;
+
+    // PROXY PACKETS
+    static const quint32 PROXY_UPDATE_PORT;
 };
 
 #endif // PACKETID_H

@@ -1,6 +1,7 @@
 #include "network/servermanager.h"
 
 #include <QDebug>
+#include <QMutex>
 
 #include "settings.h"
 

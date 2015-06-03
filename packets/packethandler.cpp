@@ -83,7 +83,6 @@ void PacketHandler::serverRoomPlayerInfo(WorkerTask *workerTask, const QByteArra
 
     quint32 targetId = 0;
     quint32 playerId = 0;
-    quint16 playerPort = 0;
 
     QDataStream in(bytes);
     in.setByteOrder(QDataStream::LittleEndian);
@@ -91,27 +90,16 @@ void PacketHandler::serverRoomPlayerInfo(WorkerTask *workerTask, const QByteArra
     in >> targetId;
     in.skipRawData(8);
     in >> playerId;
-    in.skipRawData(57);
-    in >> playerPort;
-
-    quint16 serverId = workerTask->getServerId();
 
     if (targetId != playerId) {
+        quint16 serverId = workerTask->getServerId();
+        quint16 remotePort = Settings::instance().getProxyUdpPortFactor() + serverId;
+
         UdpServer *udpServer = ServerManager::instance().getUdpServer(serverId);
-        emit udpServer->setPlayerInfo(targetId, playerId, playerAddress, playerPort);
+        emit udpServer->setPlayerInfo(targetId, playerId, playerAddress, remotePort);
     }
 
-    QByteArray modified;
-    QDataStream out(&modified, QIODevice::WriteOnly);
-    out.setByteOrder(QDataStream::LittleEndian);
-
-    modified.append(bytes.left(63));
-    modified.append(Settings::LOCALHOST.toLocal8Bit().constData());
-    modified.append(QByteArray(18 - Settings::LOCALHOST.size(), '\0'));
-
-    modified.append(bytes.right(bytes.size() - 81));
-
-    emit workerTask->write(modified, workerTask->getWriterIndex());
+    emit workerTask->write(bytes, workerTask->getWriterIndex());
 }
 
 void PacketHandler::serverLeaveRoom(WorkerTask *workerTask, const QByteArray &bytes)
@@ -130,11 +118,10 @@ void PacketHandler::serverLeaveRoom(WorkerTask *workerTask, const QByteArray &by
 
     UdpServer *udpServer = ServerManager::instance().getUdpServer(serverId);
 
-    if (playerId == targetId) {
+    if (playerId == targetId)
         emit udpServer->clearPlayerMap(targetId);
-    } else {
+    else
         emit udpServer->removePlayer(targetId, playerId);
-    }
 
     emit workerTask->write(bytes, workerTask->getWriterIndex());
 }

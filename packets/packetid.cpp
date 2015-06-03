@@ -87,3 +87,6 @@ const quint32 PacketId::UDP_GAME_2 = 9002;
 const quint32 PacketId::UDP_GAME_3 = 9003;
 const quint32 PacketId::UDP_GAME_4 = 9004;
 const quint32 PacketId::UDP_GAME_5 = 9005;
+
+// PROXY PACKETS
+const quint32 PacketId::PROXY_UPDATE_PORT = 11001;
