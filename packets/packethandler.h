@@ -38,6 +38,7 @@ private:
     void serverServerInfo(WorkerTask *workerTask, const QByteArray &bytes);
     void serverRoomPlayerInfo(WorkerTask *workerTask, const QByteArray &bytes);
     void serverLeaveRoom(WorkerTask *workerTask, const QByteArray &bytes);
+    void serverProxyPlayerPort(WorkerTask *workerTask, const QByteArray &bytes);
 };
 
 #endif // MESSAGEHANDLER_H

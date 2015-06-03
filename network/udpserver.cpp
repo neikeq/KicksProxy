@@ -8,10 +8,11 @@ UdpServer::UdpServer(quint16 serverId, const QString &serverAddress, QObject *pa
 {
     this->serverAddress = QHostAddress(serverAddress);
     this->serverPort = Settings::instance().getServerUdpPortFactor() + serverId;
+    this->bindPort = Settings::instance().getProxyUdpPortFactor() + serverId;
 
     socket = new QUdpSocket(this);
     connect(socket, SIGNAL(readyRead()), this, SLOT(readyRead()));
-    socket->bind(QHostAddress::Any, Settings::UDP_PORT_FACTOR + serverId);
+    socket->bind(QHostAddress::Any, bindPort);
 
     connect(this, SIGNAL(clearPlayerMap(quint32)), this, SLOT(onClearPlayerMap(quint32)));
     connect(this, SIGNAL(setPlayerInfo(quint32,quint32,QString,quint16)),
@@ -53,43 +54,49 @@ void UdpServer::readyRead()
 
     bool isServerDatagram = senderPort == serverPort;
 
-    quint32 playerId = isServerDatagram ? 0 : senderId;
+    quint32 playerId = isServerDatagram ? 0 : (senderPort == bindPort ? targetId : senderId);
 
-    PLAYER_INFO_MAP players = playerMaps[playerId];
+    PLAYER_INFO_MAP &players = playerMaps[playerId];
 
-    if (packetId == PacketId::UDP_PING && !isServerDatagram) {
+    if ((packetId == PacketId::UDP_PING || packetId == PacketId::UDP_AUTHENTICATE)
+            && !isServerDatagram) {
         writeDatagram(datagram, serverAddress, serverPort);
+    } else {
+        PlayerInfo &playerInfo = players[targetId];
+        writeDatagram(datagram, playerInfo.address, playerInfo.port);
+    }
 
-        if (players.contains(playerId)) {
-            PlayerInfo senderInfo = players[playerId];
-
-            senderInfo.address = sender;
-            senderInfo.port = senderPort;
-        } else {
+    if (!isServerDatagram && playerId == senderId) {
+        if (!players.contains(playerId)) {
             PlayerInfo senderInfo;
 
             senderInfo.address = sender;
             senderInfo.port = senderPort;
 
             players.insert(playerId, senderInfo);
+        } else {
+            PlayerInfo &playerInfo = players[playerId];
+
+            if (playerInfo.port != senderPort) {
+                PlayerInfo &senderInfo = players[playerId];
+
+                senderInfo.address = sender;
+                senderInfo.port = senderPort;
+            }
         }
-    } else {
-        PlayerInfo playerInfo = players[targetId];
-        writeDatagram(datagram, playerInfo.address, playerInfo.port);
     }
 }
 
-void UdpServer::onSetPlayerInfo(quint32 mapId, quint32 playerId,
-                              QString address, quint16 port)
+void UdpServer::onSetPlayerInfo(quint32 mapId, quint32 playerId, QString address, quint16 port)
 {
     if (!playerMaps.contains(mapId)) {
         playerMaps.insert(mapId, PLAYER_INFO_MAP());
     }
 
-    PLAYER_INFO_MAP& players = playerMaps[mapId];
+    PLAYER_INFO_MAP &players = playerMaps[mapId];
 
     if (players.contains(playerId)) {
-        PlayerInfo playerInfo = players[playerId];
+        PlayerInfo &playerInfo = players[playerId];
 
         playerInfo.address = address;
         playerInfo.port = port;

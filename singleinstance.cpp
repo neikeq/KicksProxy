@@ -38,6 +38,7 @@ bool SingleInstance::instanceExists(const QString &name, const QStringList &argu
         socket.flush();
     } else if (socket.error() != QLocalSocket::ConnectionRefusedError) {
         qDebug() << socket.errorString();
+        qDebug() << socket.error();
     }
 
     return instanceExists;

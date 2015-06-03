@@ -20,15 +20,15 @@ signals:
 
 public slots:
     void readyRead();
-    void onSetPlayerInfo(quint32 mapId, quint32 playerId, QString address, quint16 port);
     void onClearPlayerMap(quint32 mapId);
     void onRemovePlayer(quint32 mapId, quint32 playerId);
-
+    void onSetPlayerInfo(quint32 mapId, quint32 playerId, QString address, quint16 port);
 private:
     QUdpSocket *socket;
 
     QHostAddress serverAddress;
     quint16 serverPort;
+    quint16 bindPort;
 
     struct PlayerInfo {
         QHostAddress address;
@@ -36,7 +36,6 @@ private:
     };
 
     QHash<quint16, PLAYER_INFO_MAP> playerMaps;
-
 };
 
 #endif // UDPSERVER_H

@@ -96,8 +96,10 @@ void PacketHandler::serverRoomPlayerInfo(WorkerTask *workerTask, const QByteArra
 
     quint16 serverId = workerTask->getServerId();
 
-    UdpServer *udpServer = ServerManager::instance().getUdpServer(serverId);
-    emit udpServer->setPlayerInfo(targetId, playerId, playerAddress, playerPort);
+    if (targetId != playerId) {
+        UdpServer *udpServer = ServerManager::instance().getUdpServer(serverId);
+        emit udpServer->setPlayerInfo(targetId, playerId, playerAddress, playerPort);
+    }
 
     QByteArray modified;
     QDataStream out(&modified, QIODevice::WriteOnly);
@@ -105,10 +107,7 @@ void PacketHandler::serverRoomPlayerInfo(WorkerTask *workerTask, const QByteArra
 
     modified.append(bytes.left(63));
     modified.append(Settings::LOCALHOST.toLocal8Bit().constData());
-    modified.append(QByteArray(16 - Settings::LOCALHOST.size(), '\0'));
-
-    out.skipRawData(modified.size());
-    out << static_cast<quint16>(Settings::UDP_PORT_FACTOR + serverId);
+    modified.append(QByteArray(18 - Settings::LOCALHOST.size(), '\0'));
 
     modified.append(bytes.right(bytes.size() - 81));
 
