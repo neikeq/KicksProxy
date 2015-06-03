@@ -136,7 +136,6 @@ void UdpServer::onSetPlayerInfo(quint32 mapId, quint32 playerId, QString address
     }
 }
 
-// TODO call when client is disconnecting
 void UdpServer::onClearPlayerMap(quint32 mapId)
 {
     PLAYER_INFO_MAP &players = playerMaps[mapId];

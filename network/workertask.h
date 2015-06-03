@@ -22,6 +22,7 @@ signals:
     void readComplete(int readerIndex);
     void write(const QByteArray &data, int writerIndex);
     void updateWriterIndex(int writerIndex);
+    void setPlayerId(quint32 playerId);
 
 public slots:
 

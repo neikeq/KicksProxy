@@ -1,12 +1,15 @@
 #include "network/proxyclient.h"
 
-#include "settings.h"
+#include "network/servermanager.h"
+#include "network/udpserver.h"
 #include "network/workertask.h"
+#include "settings.h"
 
 ProxyClient::ProxyClient(quint16 serverId, QObject *parent) :
     QObject(parent)
 {
     this->serverId = serverId;
+    this->playerId = 0;
 
     threadPool = new QThreadPool(this);
     threadPool->setMaxThreadCount(5);
@@ -56,6 +59,14 @@ void ProxyClient::clientDisconnected()
         serverSocket = 0;
     }
 
+    if (serverId != 99) {
+        UdpServer *udpServer = ServerManager::instance().getUdpServer(serverId);
+
+        if (udpServer != 0) {
+            emit udpServer->clearPlayerMap(playerId);
+        }
+    }
+
     emit disconnected();
 }
 
@@ -79,6 +90,7 @@ void ProxyClient::clientReadyRead()
         connect(task, SIGNAL(readComplete(int)), this, SLOT(clientReadComplete(int)));
         connect(task, SIGNAL(write(QByteArray, int)), this, SLOT(clientWrite(QByteArray, int)));
         connect(task, SIGNAL(updateWriterIndex(int)), this, SLOT(updateClientWriterIndex(int)));
+        connect(task, SIGNAL(setPlayerId(quint32)), this, SLOT(setPlayerId(quint32)));
 
         threadPool->start(task);
     }
@@ -127,6 +139,7 @@ void ProxyClient::serverReadyRead()
         connect(task, SIGNAL(readComplete(int)), this, SLOT(serverReadComplete(int)));
         connect(task, SIGNAL(write(QByteArray, int)), this, SLOT(serverWrite(QByteArray, int)));
         connect(task, SIGNAL(updateWriterIndex(int)), this, SLOT(updateServerWriterIndex(int)));
+        connect(task, SIGNAL(setPlayerId(quint32)), this, SLOT(setPlayerId(quint32)));
 
         threadPool->start(task);
     }

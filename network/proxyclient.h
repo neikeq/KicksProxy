@@ -55,6 +55,11 @@ public slots:
         serverWriterIndex = writerIndex;
     }
 
+    inline void setPlayerId(quint32 playerId)
+    {
+        this->playerId = playerId;
+    }
+
 private:
     enum ReadingState {
         NotReading,
@@ -77,6 +82,7 @@ private:
     ReadingState serverReading;
 
     quint16 serverId;
+    quint32 playerId;
 };
 
 #endif // PROXYCLIENT_H

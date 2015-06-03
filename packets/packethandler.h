@@ -36,6 +36,7 @@ private:
 
     // Message event methods
     void serverServerInfo(WorkerTask *workerTask, const QByteArray &bytes);
+    void serverPlayerInfo(WorkerTask *workerTask, const QByteArray &bytes);
     void serverRoomPlayerInfo(WorkerTask *workerTask, const QByteArray &bytes);
     void serverLeaveRoom(WorkerTask *workerTask, const QByteArray &bytes);
 };

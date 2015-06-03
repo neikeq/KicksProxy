@@ -37,6 +37,11 @@ PacketHandler::PacketHandler()
         serverServerInfo(workerTask, bytes);
     });
 
+    events.insert(PacketId::PLAYER_INFO,
+                  [=] (WorkerTask *workerTask, const QByteArray &bytes) {
+        serverPlayerInfo(workerTask, bytes);
+    });
+
     events.insert(PacketId::ROOM_PLAYER_INFO,
                   [=] (WorkerTask *workerTask, const QByteArray &bytes) {
         serverRoomPlayerInfo(workerTask, bytes);
@@ -75,6 +80,20 @@ void PacketHandler::serverServerInfo(WorkerTask *workerTask, const QByteArray &b
     emit ServerManager::instance().addServer(serverId, serverAddress, serverPort);
 
     emit workerTask->write(modified, workerTask->getWriterIndex());
+}
+
+void PacketHandler::serverPlayerInfo(WorkerTask *workerTask, const QByteArray &bytes)
+{
+    quint32 playerId = 0;
+
+    QDataStream in(bytes);
+    in.setByteOrder(QDataStream::LittleEndian);
+    in.skipRawData(18);
+    in >> playerId;
+
+    emit workerTask->setPlayerId(playerId);
+
+    emit workerTask->write(bytes, workerTask->getWriterIndex());
 }
 
 void PacketHandler::serverRoomPlayerInfo(WorkerTask *workerTask, const QByteArray &bytes)
