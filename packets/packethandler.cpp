@@ -1,7 +1,5 @@
 #include "packets/packethandler.h"
 
-#include <QDebug>
-
 #include "settings.h"
 #include "packets/packetid.h"
 #include "network/servermanager.h"
@@ -51,6 +49,11 @@ PacketHandler::PacketHandler()
                   [=] (WorkerTask *workerTask, const QByteArray &bytes) {
         serverLeaveRoom(workerTask, bytes);
     });
+
+    events.insert(PacketId::PROXY_UPDATE_PORT,
+                  [=] (WorkerTask *workerTask, const QByteArray &bytes) {
+        serverProxyUpdatePort(workerTask, bytes);
+    });
 }
 
 void PacketHandler::serverServerInfo(WorkerTask *workerTask, const QByteArray &bytes)
@@ -98,10 +101,10 @@ void PacketHandler::serverPlayerInfo(WorkerTask *workerTask, const QByteArray &b
 
 void PacketHandler::serverRoomPlayerInfo(WorkerTask *workerTask, const QByteArray &bytes)
 {
-    QString playerAddress(bytes.mid(63, 79));
-
+    QString playerAddress(bytes.mid(63, 16));
     quint32 targetId = 0;
     quint32 playerId = 0;
+    quint16 playerPort;
 
     QDataStream in(bytes);
     in.setByteOrder(QDataStream::LittleEndian);
@@ -109,13 +112,13 @@ void PacketHandler::serverRoomPlayerInfo(WorkerTask *workerTask, const QByteArra
     in >> targetId;
     in.skipRawData(8);
     in >> playerId;
+    in.skipRawData(57);
+    in >> playerPort;
 
     if (targetId != playerId) {
         quint16 serverId = workerTask->getServerId();
-        quint16 remotePort = Settings::instance().getProxyUdpPortFactor() + serverId;
-
         UdpServer *udpServer = ServerManager::instance().getUdpServer(serverId);
-        emit udpServer->setPlayerInfo(targetId, playerId, playerAddress, remotePort);
+        emit udpServer->setPlayerInfo(targetId, playerId, playerAddress, playerPort);
     }
 
     emit workerTask->write(bytes, workerTask->getWriterIndex());
@@ -143,4 +146,25 @@ void PacketHandler::serverLeaveRoom(WorkerTask *workerTask, const QByteArray &by
         emit udpServer->removePlayer(targetId, playerId);
 
     emit workerTask->write(bytes, workerTask->getWriterIndex());
+}
+
+void PacketHandler::serverProxyUpdatePort(WorkerTask *workerTask, const QByteArray &bytes)
+{
+    quint32 targetId = 0;
+    quint32 playerId = 0;
+    quint16 playerPort;
+
+    QDataStream in(bytes);
+    in.setByteOrder(QDataStream::LittleEndian);
+    in.skipRawData(6);
+    in >> targetId;
+    in.skipRawData(6);
+    in >> playerId;
+    in >> playerPort;
+
+    quint16 serverId = workerTask->getServerId();
+    UdpServer *udpServer = ServerManager::instance().getUdpServer(serverId);
+    emit udpServer->setPlayerPort(targetId, playerId, playerPort);
+
+    workerTask->ignoreCurrent();
 }

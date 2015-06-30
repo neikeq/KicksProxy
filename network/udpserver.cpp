@@ -7,18 +7,20 @@ UdpServer::UdpServer(quint16 serverId, const QString &serverAddress, QObject *pa
     QObject(parent)
 {
     this->serverAddress = QHostAddress(serverAddress);
-    this->serverPort = Settings::instance().getServerUdpPortFactor() + serverId;
-    this->bindPort = Settings::instance().getProxyUdpPortFactor() + serverId;
+    serverPort = Settings::instance().getServerUdpPortFactor() + serverId;
+    bindPort = Settings::instance().getProxyUdpPortFactor() + serverId;
 
     socket = new QUdpSocket(this);
     connect(socket, SIGNAL(readyRead()), this, SLOT(readyRead()));
     socket->bind(QHostAddress::Any, bindPort);
 
     connect(this, SIGNAL(clearPlayerMap(quint32)), this, SLOT(onClearPlayerMap(quint32)));
-    connect(this, SIGNAL(setPlayerInfo(quint32,quint32,QString,quint16)),
-            this, SLOT(onSetPlayerInfo(quint32,quint32,QString,quint16)));
     connect(this, SIGNAL(removePlayer(quint32,quint32)),
             this, SLOT(onRemovePlayer(quint32,quint32)));
+    connect(this, SIGNAL(setPlayerInfo(quint32,quint32,QString,quint16)),
+            this, SLOT(onSetPlayerInfo(quint32,quint32,QString,quint16)));
+    connect(this, SIGNAL(setPlayerPort(quint32,quint32,quint16)),
+            this, SLOT(onSetPlayerPort(quint32,quint32,quint16)));
 }
 
 void UdpServer::writeDatagram(const QByteArray &datagram, const QHostAddress &address, quint16 port)
@@ -133,6 +135,19 @@ void UdpServer::onSetPlayerInfo(quint32 mapId, quint32 playerId, QString address
         playerInfo.port = port;
 
         players.insert(playerId, playerInfo);
+    }
+}
+
+void UdpServer::onSetPlayerPort(quint32 mapId, quint32 playerId, quint16 port)
+{
+    if (!playerMaps.contains(mapId))
+        return;
+
+    PLAYER_INFO_MAP &players = playerMaps[mapId];
+
+    if (players.contains(playerId)) {
+        PlayerInfo &playerInfo = players[playerId];
+        playerInfo.port = port;
     }
 }
 
