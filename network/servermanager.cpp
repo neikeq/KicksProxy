@@ -10,6 +10,9 @@ ServerManager::ServerManager(QObject *parent) :
 {
     connect(this, SIGNAL(addServer(quint16,QString,quint16)),
             this, SLOT(addProxyServer(quint16,QString,quint16)));
+
+    UdpServer *udpServerOutter = new UdpServer(0, "", this);
+    udpServers.insert(0, udpServerOutter);
 }
 
 void ServerManager::addProxyServer(quint16 serverId, const QString &targetAddress, quint16 targetPort)

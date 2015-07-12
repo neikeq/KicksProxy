@@ -6,12 +6,18 @@
 UdpServer::UdpServer(quint16 serverId, const QString &serverAddress, QObject *parent) :
     QObject(parent)
 {
-    this->serverAddress = QHostAddress(serverAddress);
+    this->serverAddress = serverAddress.isEmpty() ?
+                QHostAddress::Null : QHostAddress(serverAddress);
     serverPort = Settings::instance().getServerUdpPortFactor() + serverId;
     bindPort = Settings::instance().getProxyUdpPortFactor() + serverId;
 
     socket = new QUdpSocket(this);
-    connect(socket, SIGNAL(readyRead()), this, SLOT(readyRead()));
+
+    if (serverId > 0)
+        connect(socket, SIGNAL(readyRead()), this, SLOT(readyRead()));
+    else
+        connect(socket, SIGNAL(readyRead()), this, SLOT(readyReadOutter()));
+
     socket->bind(QHostAddress::Any, bindPort);
 
     connect(this, SIGNAL(clearPlayerMap(quint32)), this, SLOT(onClearPlayerMap(quint32)));
@@ -19,8 +25,6 @@ UdpServer::UdpServer(quint16 serverId, const QString &serverAddress, QObject *pa
             this, SLOT(onRemovePlayer(quint32,quint32)));
     connect(this, SIGNAL(setPlayerInfo(quint32,quint32,QString,quint16)),
             this, SLOT(onSetPlayerInfo(quint32,quint32,QString,quint16)));
-    connect(this, SIGNAL(setPlayerPort(quint32,quint32,quint16)),
-            this, SLOT(onSetPlayerPort(quint32,quint32,quint16)));
 }
 
 void UdpServer::writeDatagram(const QByteArray &datagram, const QHostAddress &address, quint16 port)
@@ -99,6 +103,28 @@ void UdpServer::readyRead()
         writeDatagram(updatePortPacket(playerId, senderPort), serverAddress, serverPort);
 }
 
+void UdpServer::readyReadOutter() {
+    QByteArray datagram;
+    datagram.resize(socket->pendingDatagramSize());
+
+    socket->readDatagram(datagram.data(), datagram.size());
+
+    quint32 targetId = 0;
+    quint16 bodySize = 0;
+
+    QDataStream in(&datagram, QIODevice::ReadOnly);
+    in.setByteOrder(QDataStream::LittleEndian);
+    in.skipRawData(6);
+    in >> targetId;
+    in >> bodySize;
+
+    if (bodySize < 4)
+        return;
+
+    PlayerInfo &playerInfo = playerMaps[targetId][targetId];
+    writeDatagram(datagram, playerInfo.address, playerInfo.port);
+}
+
 QByteArray UdpServer::updatePortPacket(quint32 playerId, quint16 port)
 {
     QByteArray datagram;
@@ -135,19 +161,6 @@ void UdpServer::onSetPlayerInfo(quint32 mapId, quint32 playerId, QString address
         playerInfo.port = port;
 
         players.insert(playerId, playerInfo);
-    }
-}
-
-void UdpServer::onSetPlayerPort(quint32 mapId, quint32 playerId, quint16 port)
-{
-    if (!playerMaps.contains(mapId))
-        return;
-
-    PLAYER_INFO_MAP &players = playerMaps[mapId];
-
-    if (players.contains(playerId)) {
-        PlayerInfo &playerInfo = players[playerId];
-        playerInfo.port = port;
     }
 }
 

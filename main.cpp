@@ -1,5 +1,6 @@
 #include <QCoreApplication>
 #include <QDebug>
+#include <QProcess>
 
 #include "argumentsparser.h"
 #include "network/servermanager.h"
@@ -24,8 +25,23 @@ int main(int argc, char *argv[])
 
     ArgumentsParser::instance().parseArguments(QCoreApplication::arguments());
 
+    Settings &settings = Settings::instance();
+    QString sUdpPort = QString::number(settings.getProxyUdpPortFactor());
+
+    // upnpc -a ip port external_port tcp | udp
+
+    QStringList command;
+    command << settings.getUPnPcPath();
+    command << "-a";
+    command << settings.getLocalAddress().toString();
+    command << sUdpPort;
+    command << sUdpPort;
+    command << "udp";
+
+    QProcess::execute(command.join(QChar::Space));
+
     emit ServerManager::instance().addServer(Settings::MAIN_SERVER_ID,
-                                             Settings::instance().getServerAddress(),
-                                             Settings::instance().getServerPort());
+                                             settings.getServerAddress(),
+                                             settings.getServerPort());
     return a.exec();
 }

@@ -20,14 +20,13 @@ signals:
     void clearPlayerMap(quint32 mapId);
     void removePlayer(quint32 mapId, quint32 playerId);
     void setPlayerInfo(quint32 mapId, quint32 playerId, QString address, quint16 port);
-    void setPlayerPort(quint32 mapId, quint32 playerId, quint16 port);
 
 public slots:
     void readyRead();
     void onClearPlayerMap(quint32 mapId);
     void onRemovePlayer(quint32 mapId, quint32 playerId);
     void onSetPlayerInfo(quint32 mapId, quint32 playerId, QString address, quint16 port);
-    void onSetPlayerPort(quint32 mapId, quint32 playerId, quint16 port);
+    void readyReadOutter();
 
 private:
     QByteArray updatePortPacket(quint32 playerId, quint16 port);

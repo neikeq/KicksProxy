@@ -64,6 +64,9 @@ void ProxyClient::clientDisconnected()
 
         if (udpServer != 0) {
             emit udpServer->clearPlayerMap(playerId);
+
+            UdpServer *udpOutterServer = ServerManager::instance().getUdpServer(0);
+            emit udpOutterServer->clearPlayerMap(playerId);
         }
     }
 
