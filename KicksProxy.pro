@@ -9,7 +9,7 @@ QT       += core network
 TARGET = KicksProxy
 
 #CONFIG   += console
-CONFIG   += c++11
+CONFIG   += c++14
 CONFIG   -= app_bundle
 
 TEMPLATE = app
@@ -39,7 +39,8 @@ HEADERS += \
     network/workertask.h \
     settings.h \
     argumentsparser.h \
-    network/udpserver.h
+    network/udpserver.h \
+    core/mem_bind.h
 
 
 OTHER_FILES += proxy.ini

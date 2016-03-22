@@ -1,5 +1,6 @@
 #include "packets/packethandler.h"
 
+#include "core/mem_bind.h"
 #include "settings.h"
 #include "packets/packetid.h"
 #include "network/servermanager.h"
@@ -30,25 +31,10 @@ PacketHandler::PacketHandler()
 
     // Server Events
 
-    events.insert(PacketId::SERVER_INFO,
-                  [=] (WorkerTask *workerTask, const QByteArray &bytes) {
-        serverServerInfo(workerTask, bytes);
-    });
-
-    events.insert(PacketId::PLAYER_INFO,
-                  [=] (WorkerTask *workerTask, const QByteArray &bytes) {
-        serverPlayerInfo(workerTask, bytes);
-    });
-
-    events.insert(PacketId::ROOM_PLAYER_INFO,
-                  [=] (WorkerTask *workerTask, const QByteArray &bytes) {
-        serverRoomPlayerInfo(workerTask, bytes);
-    });
-
-    events.insert(PacketId::LEAVE_ROOM,
-                  [=] (WorkerTask *workerTask, const QByteArray &bytes) {
-        serverLeaveRoom(workerTask, bytes);
-    });
+    events.insert(PacketId::SERVER_INFO, mem_bind(&PacketHandler::serverServerInfo, this));
+    events.insert(PacketId::PLAYER_INFO, mem_bind(&PacketHandler::serverPlayerInfo, this));
+    events.insert(PacketId::ROOM_PLAYER_INFO, mem_bind(&PacketHandler::serverRoomPlayerInfo, this));
+    events.insert(PacketId::LEAVE_ROOM, mem_bind(&PacketHandler::serverLeaveRoom, this));
 }
 
 void PacketHandler::serverServerInfo(WorkerTask *workerTask, const QByteArray &bytes)
